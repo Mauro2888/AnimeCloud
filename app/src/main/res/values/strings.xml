@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AnimeCloud</string>
+    <string name="episodio">Episodio : </string>
 </resources>

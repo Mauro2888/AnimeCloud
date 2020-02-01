@@ -92,6 +92,6 @@ public class DetailAnime extends AppCompatActivity implements OnClickInterface {
 
     @Override
     public void onClickItem(View view, int pos) {
-        Toast.makeText(this, "HEY", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "" + pos, Toast.LENGTH_SHORT).show();
     }
 }
