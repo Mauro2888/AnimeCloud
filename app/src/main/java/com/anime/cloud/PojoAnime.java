@@ -8,6 +8,8 @@ public class PojoAnime implements Serializable {
     private String urlImg;
     private String urlAnimePage;
 
+
+
     public PojoAnime(String titleAnime, String urlImg, String urlAnimePage) {
         this.titleAnime = titleAnime;
         this.urlImg = urlImg;

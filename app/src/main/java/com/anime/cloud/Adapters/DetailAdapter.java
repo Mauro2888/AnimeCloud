@@ -4,14 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.anime.cloud.PojoAnime;
 import com.anime.cloud.R;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -21,22 +16,22 @@ import androidx.recyclerview.widget.RecyclerView;
 public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolderMain> {
 
     private Context context;
-    private List<PojoAnime> animeList;
+    private List<PojoEpisodes> episodesList;
     private OnClickInterface onClickInterface;
 
     public void setOnClickInterface(OnClickInterface onClickInterface) {
         this.onClickInterface = onClickInterface;
     }
 
-    public DetailAdapter(Context context, List<PojoAnime> animeList) {
+    public DetailAdapter(Context context, List<PojoEpisodes> episodesList) {
         this.context = context;
-        this.animeList = animeList;
+        this.episodesList = episodesList;
     }
 
     @NonNull
     @Override
     public ViewHolderMain onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View root = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_detail, parent, false);
+        View root = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_detail, parent, false);
         ViewHolderMain holderMain = new ViewHolderMain(root);
         return holderMain;
     }
@@ -44,37 +39,24 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolderMain holder, int position) {
 
-        PojoAnime pojoAnime = animeList.get(position);
-        holder.title.setText(pojoAnime.getTitleAnime());
-
-        RequestOptions glideOp = new RequestOptions()
-                .centerCrop();
-
-        Glide.with(context)
-                .asBitmap()
-                .apply(glideOp)
-                .centerCrop()
-                .load(pojoAnime.getUrlImg())
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(holder.imageView);
+        PojoEpisodes pojoEpisodes = episodesList.get(position);
+        holder.episodeNumber.setText(pojoEpisodes.getEpisode());
 
     }
 
     @Override
     public int getItemCount() {
-        return animeList.size();
+        return episodesList.size();
     }
 
     public class ViewHolderMain extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView title;
-        ImageView imageView;
+        TextView episodeNumber;
 
-        public ViewHolderMain(@NonNull View itemView) {
+        private ViewHolderMain(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            title = itemView.findViewById(R.id.title_anime);
-            imageView = itemView.findViewById(R.id.image_anime);
+            episodeNumber = itemView.findViewById(R.id.episode_number);
         }
 
         @Override
