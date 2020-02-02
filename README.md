@@ -1,2 +1,5 @@
 # AnimeCloud
-Application for view anime without ads
+View italian anime episodes
+
+# 1.0 version
+first implementation
