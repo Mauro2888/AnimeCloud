@@ -5,6 +5,9 @@ import android.util.DisplayMetrics;
 
 public class Utils {
 
+    public static final String BASE_ENDPOINT = "https://animeunity.it/index.php/";
+    public static final String BASE_ENDPOINT_DETAIL = "https://animeunity.it/";
+
     public static int calculateNoOfColumns(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;

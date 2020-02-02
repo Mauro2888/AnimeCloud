@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.anime.cloud.PojoAnime;
 import com.anime.cloud.R;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -48,14 +49,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolderMain
         holder.title.setText(pojoAnime.getTitleAnime());
 
         RequestOptions glideOp = new RequestOptions()
+                .centerInside()
                 .centerCrop();
 
         Glide.with(context)
                 .asBitmap()
                 .apply(glideOp)
-                .centerCrop()
                 .load(pojoAnime.getUrlImg())
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imageView);
 
     }
