@@ -16,9 +16,6 @@
             android:name=".PlayActivity"
             android:configChanges="orientation|screenSize|layoutDirection" />
         <activity
-            android:name=".DetailAnime"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
