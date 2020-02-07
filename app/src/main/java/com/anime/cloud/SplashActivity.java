@@ -1,5 +1,6 @@
 package com.anime.cloud;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
@@ -15,6 +16,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.anime.cloud.Utils.Utils;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.jsoup.Jsoup;
@@ -34,6 +42,7 @@ import gr.net.maroulis.library.EasySplashScreen;
 public class SplashActivity extends AppCompatActivity {
 
     private HashMap<String, String> archive = new HashMap<>();
+    private FirebaseFirestore mFireStore;
     private static final String LOG = SplashActivity.class.getSimpleName();
 
     @Override
@@ -69,8 +78,10 @@ public class SplashActivity extends AppCompatActivity {
 
     private void downloadArchive() {
         final HashMap<String, String> mapTitles_Urls = new HashMap<>();
-       final ArrayList<String>arrayList_urls = new ArrayList<>();
-       final ArrayList<String>arrayList_titles = new ArrayList<>();
+        final ArrayList<String> arrayList_urls = new ArrayList<>();
+        final ArrayList<String> arrayList_titles = new ArrayList<>();
+        mFireStore = FirebaseFirestore.getInstance();
+
         RequestQueue requestQueueFirst = Volley.newRequestQueue(this);
         final StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_ARCHIVE, new Response.Listener<String>() {
             @Override
@@ -82,24 +93,33 @@ public class SplashActivity extends AppCompatActivity {
                 Elements titles = document.select("h6.card-title");
                 for (Element title : titles) {
                     arrayList_titles.add(title.text());
-                 }
+                }
 
                 for (Element url_titles : urls) {
                     String allUrls_final = url_titles.attr("href");
-                    if (allUrls_final.contains("anime.php?id")){
+                    if (allUrls_final.contains("anime.php?id")) {
                         arrayList_urls.add(allUrls_final);
                     }
 
                 }
 
-                for(int i = 0; i < arrayList_titles.size(); i++){
+                for (int i = 0; i < arrayList_titles.size(); i++) {
                     mapTitles_Urls.put(arrayList_titles.get(i), arrayList_urls.get(i));
                 }
 
-                for (Map.Entry<String,String> m:mapTitles_Urls.entrySet()) {
-                    Log.d(LOG,m.getKey() + " " + m.getValue());
-                }
-                Log.d(LOG,String.valueOf(mapTitles_Urls.size()));
+                mFireStore.collection("Anime")
+                        .document()
+                        .set(mapTitles_Urls)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(SplashActivity.this, "Ok", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
+                Log.d(LOG, String.valueOf(mapTitles_Urls.size()));
+
             }
         }, new Response.ErrorListener() {
             @Override
