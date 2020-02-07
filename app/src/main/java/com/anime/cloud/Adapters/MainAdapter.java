@@ -49,8 +49,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolderMain
         holder.title.setText(pojoAnime.getTitleAnime());
 
         RequestOptions glideOp = new RequestOptions()
-                .centerInside()
-                .centerCrop();
+                .fitCenter();
 
         Glide.with(context)
                 .asBitmap()

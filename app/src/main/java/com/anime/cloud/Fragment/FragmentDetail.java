@@ -89,7 +89,7 @@ public class FragmentDetail extends Fragment implements OnClickInterface {
         setupAdapter();
 
         mImageDetail = view.findViewById(R.id.anime_image_detail);
-        Glide.with(getContext()).asBitmap().centerCrop().load(image).into(mImageDetail);
+        Glide.with(getContext()).asBitmap().fitCenter().load(image).into(mImageDetail);
 
         if (url != null){
             RequestQueue requestQueue = Volley.newRequestQueue(getContext());
