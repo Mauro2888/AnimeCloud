@@ -13,8 +13,8 @@
       android:layout_height="wrap_content">
 
       <ImageView
-          android:layout_width="30dp"
-          android:src="@drawable/ic_play_circle_outline_24px"
+          android:layout_width="90dp"
+          android:src="@drawable/btn_play"
           android:text="@string/episodio"
           android:layout_height="30dp" />
 
@@ -24,11 +24,13 @@
           android:layout_marginStart="8dp"
           android:linksClickable="true"
           android:text="@string/episodio"
+          style="@style/TextViewColor"
           android:layout_gravity="center_horizontal"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"/>
 
       <TextView
+          style="@style/TextViewColor"
           android:textSize="15sp"
           android:gravity="center"
           android:layout_marginStart="8dp"

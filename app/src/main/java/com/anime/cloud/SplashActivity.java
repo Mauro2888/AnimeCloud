@@ -23,13 +23,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +55,8 @@ public class SplashActivity extends AppCompatActivity {
 
     private HashMap<String, String> archive = new HashMap<>();
     private FirebaseFirestore mFireStore;
+    private FirebaseDatabase reference = FirebaseDatabase.getInstance();
+    private DatabaseReference mData = reference.getReference();
     private static final String LOG = SplashActivity.class.getSimpleName();
 
     @Override
@@ -52,7 +66,7 @@ public class SplashActivity extends AppCompatActivity {
         EasySplashScreen splashScreen = new EasySplashScreen(SplashActivity.this)
                 .withFullScreen()
                 .withTargetActivity(MainActivity.class)
-                .withSplashTimeOut(5000)
+                .withSplashTimeOut(10000)
                 .withBackgroundColor(Color.parseColor("#000000"))
                 .withLogo(R.drawable.icon_anime);
 
@@ -78,9 +92,14 @@ public class SplashActivity extends AppCompatActivity {
 
     private void downloadArchive() {
         final HashMap<String, String> mapTitles_Urls = new HashMap<>();
+
+
         final ArrayList<String> arrayList_urls = new ArrayList<>();
         final ArrayList<String> arrayList_titles = new ArrayList<>();
-        mFireStore = FirebaseFirestore.getInstance();
+        final ArrayList<String> arrayList_plots = new ArrayList<>();
+        final ArrayList<String> arrayList_generes = new ArrayList<>();
+        final ArrayList<String> arrayList_mangakas = new ArrayList<>();
+        //mFireStore = FirebaseFirestore.getInstance();
 
         RequestQueue requestQueueFirst = Volley.newRequestQueue(this);
         final StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_ARCHIVE, new Response.Listener<String>() {
@@ -91,8 +110,24 @@ public class SplashActivity extends AppCompatActivity {
 
                 Elements urls = document.select("a");
                 Elements titles = document.select("h6.card-title");
+                Elements mangakas = document.select("p.card-text.text-secondary");
+                Elements plots = document.select("p.card-text.archive-plot");
+                Elements generes = document.select("div.card-footer.archive-card-footer>badge.btn-archive-genres");
+
                 for (Element title : titles) {
                     arrayList_titles.add(title.text());
+                }
+
+                for (Element mangaka : mangakas) {
+                    arrayList_mangakas.add(mangaka.text());
+                }
+
+                for (Element plot : plots) {
+                    arrayList_plots.add(plot.text());
+                }
+
+                for (Element genere : generes) {
+                    arrayList_generes.add(genere.text());
                 }
 
                 for (Element url_titles : urls) {
@@ -102,23 +137,36 @@ public class SplashActivity extends AppCompatActivity {
                     }
 
                 }
-
+                JsonObject object = new JsonObject();
+                JsonArray jsonArray = new JsonArray();
                 for (int i = 0; i < arrayList_titles.size(); i++) {
-                    mapTitles_Urls.put(arrayList_titles.get(i), arrayList_urls.get(i));
+
+                    JsonObject object1 = new JsonObject();
+                        object1.addProperty("Titolo",arrayList_titles.get(i));
+                        object1.addProperty("Url",arrayList_urls.get(i));
+                        object1.addProperty("Trama",arrayList_plots.get(i));
+                        object1.addProperty("Mangaka",arrayList_mangakas.get(i));
+                        jsonArray.add(object1);
+
                 }
+                object.add("Anime",jsonArray);
 
-                mFireStore.collection("Anime")
-                        .document()
-                        .set(mapTitles_Urls)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(SplashActivity.this, "Ok", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                //Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                Gson gson = new Gson();
+                String prettyJson = gson.toJson(object);
+                mData.setValue(prettyJson);
+
+                Log.d(LOG,prettyJson);
+
+                Log.d(LOG, String.valueOf(mapTitles_Urls.size()
+                + " " + arrayList_plots.size() + " " + arrayList_urls.size() + " " + arrayList_mangakas.size()));
 
 
-                Log.d(LOG, String.valueOf(mapTitles_Urls.size()));
+               /* Log.d(LOG, (
+                        arrayList_titles.get(i)
+                                + arrayList_plots.get(i)
+                                + arrayList_mangakas.get(i)
+                                + arrayList_urls.get(i)));*/
 
             }
         }, new Response.ErrorListener() {

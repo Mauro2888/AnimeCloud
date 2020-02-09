@@ -3,7 +3,6 @@ package com.anime.cloud.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +25,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.anime.cloud.Adapters.DetailAdapter;
 import com.anime.cloud.Adapters.OnClickInterface;
-import com.anime.cloud.Adapters.PojoEpisodes;
+import com.anime.cloud.Model.PojoEpisodes;
 import com.anime.cloud.PlayActivity;
-import com.anime.cloud.PojoAnime;
+import com.anime.cloud.Model.PojoAnime;
 import com.anime.cloud.R;
 import com.anime.cloud.Utils.Utils;
 import com.bumptech.glide.Glide;
@@ -40,7 +39,7 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 
-public class FragmentDetail extends Fragment implements OnClickInterface {
+public class FragmentDetail extends Fragment implements OnClickInterface, View.OnClickListener {
 
     private Context mContext;
     private PojoAnime pojoAnime;
@@ -50,6 +49,7 @@ public class FragmentDetail extends Fragment implements OnClickInterface {
     private ProgressBar mProgressDetail;
     private RecyclerView mRecyclerDetailEpisodes;
     private ArrayList<PojoEpisodes> mEpisodesArrayList = new ArrayList<>();
+    private boolean isClickedTextView = false;
 
     public FragmentDetail(){}
 
@@ -76,6 +76,7 @@ public class FragmentDetail extends Fragment implements OnClickInterface {
         mGenere = view.findViewById(R.id.genere_detail);
         mStato = view.findViewById(R.id.stato_detail);
         mTrama = view.findViewById(R.id.trama_detail);
+        mTrama.setOnClickListener(this);
 
         //get data from intent
         String title = pojoAnime.getTitleAnime();
@@ -184,6 +185,17 @@ public class FragmentDetail extends Fragment implements OnClickInterface {
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     );
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mTrama && isClickedTextView){
+            mTrama.setMaxLines(4);
+            isClickedTextView = false;
+        }else {
+            mTrama.setMaxLines(Integer.MAX_VALUE);
+            isClickedTextView = true;
         }
     }
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="170dp"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp">
+
+        <ImageView
+            android:id="@+id/image_anime"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="fitXY"
+            tools:src="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/title_anime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/backgroundCard"
+            android:gravity="center_horizontal"
+            android:padding="10dp"
+            android:textAlignment="center"
+            android:textColor="@color/textColor"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="Title" />
+    </RelativeLayout>
+
+
+</androidx.cardview.widget.CardView>
