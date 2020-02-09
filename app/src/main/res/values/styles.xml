@@ -8,6 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="CustomTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
+    <style name="CustomTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorBackground">@color/backgroundMain</item>
+    </style>
+
+    <style name="TextViewColor" parent="android:Widget.TextView">
+        <item name="android:textColor">#FFF</item>
+        <item name="android:fontFamily">@font/roboto</item>
+    </style>
 
 </resources>

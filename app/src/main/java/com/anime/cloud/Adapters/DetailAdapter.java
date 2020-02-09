@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.anime.cloud.Model.PojoEpisodes;
 import com.anime.cloud.R;
 
 import java.util.List;

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "564956102206",
+    "firebase_url": "https://animecloud-93294.firebaseio.com",
+    "project_id": "animecloud-93294",
+    "storage_bucket": "animecloud-93294.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564956102206:android:423f2f6b07b6a0cafb9b6f",
+        "android_client_info": {
+          "package_name": "com.anime.cloud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "564956102206-ac2qjni6fij8kfoof1vti5inndpv9nvu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anime.cloud",
+            "certificate_hash": "11d156e49a190d87f4673dce4714353a003f79ee"
+          }
+        },
+        {
+          "client_id": "564956102206-45j2dniqnr2q2gvbb9c7ftk8g3a5h6in.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_MW5o91_EedKXGI9Tyc5cFMB7p2Qs8-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564956102206-45j2dniqnr2q2gvbb9c7ftk8g3a5h6in.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

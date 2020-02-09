@@ -3,6 +3,7 @@
     package="com.anime.cloud">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -11,11 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/CustomTheme">
+        <activity android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|layoutDirection">
+        </activity>
         <activity
             android:name=".PlayActivity"
             android:configChanges="orientation|screenSize|layoutDirection" />
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
