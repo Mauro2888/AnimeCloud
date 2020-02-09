@@ -7,56 +7,20 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.anime.cloud.Utils.Utils;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import gr.net.maroulis.library.EasySplashScreen;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private HashMap<String, String> archive = new HashMap<>();
-    private FirebaseFirestore mFireStore;
     private FirebaseDatabase reference = FirebaseDatabase.getInstance();
-    private DatabaseReference mData = reference.getReference();
+    private DatabaseReference mData;
+
     private static final String LOG = SplashActivity.class.getSimpleName();
 
     @Override
@@ -66,13 +30,13 @@ public class SplashActivity extends AppCompatActivity {
         EasySplashScreen splashScreen = new EasySplashScreen(SplashActivity.this)
                 .withFullScreen()
                 .withTargetActivity(MainActivity.class)
-                .withSplashTimeOut(10000)
+                .withSplashTimeOut(5000)
                 .withBackgroundColor(Color.parseColor("#000000"))
                 .withLogo(R.drawable.icon_anime);
 
         View view = splashScreen.create();
         setContentView(view);
-        downloadArchive();
+        //downloadArchive();
         hideSystemUI();
     }
 
@@ -90,92 +54,29 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    private void downloadArchive() {
-        final HashMap<String, String> mapTitles_Urls = new HashMap<>();
-
-
-        final ArrayList<String> arrayList_urls = new ArrayList<>();
-        final ArrayList<String> arrayList_titles = new ArrayList<>();
-        final ArrayList<String> arrayList_plots = new ArrayList<>();
-        final ArrayList<String> arrayList_generes = new ArrayList<>();
-        final ArrayList<String> arrayList_mangakas = new ArrayList<>();
-        //mFireStore = FirebaseFirestore.getInstance();
-
-        RequestQueue requestQueueFirst = Volley.newRequestQueue(this);
-        final StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_ARCHIVE, new Response.Listener<String>() {
+   /* private void downloadArchive() {
+        //mData = reference.getReference();
+        DatabaseReference uidRef = mData.child("Anime");
+        uidRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onResponse(String response) {
-                String body = response;
-                Document document = Jsoup.parse(body);
-
-                Elements urls = document.select("a");
-                Elements titles = document.select("h6.card-title");
-                Elements mangakas = document.select("p.card-text.text-secondary");
-                Elements plots = document.select("p.card-text.archive-plot");
-                Elements generes = document.select("div.card-footer.archive-card-footer>badge.btn-archive-genres");
-
-                for (Element title : titles) {
-                    arrayList_titles.add(title.text());
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String titoli = postSnapshot.child("Titolo").getValue(String.class);
+                    String url_anime = postSnapshot.child("Url").getValue(String.class);
+                    String imgs = postSnapshot.child("Img_url").getValue(String.class);
+                    String generi = postSnapshot.child("Genere").getValue(String.class);
+                    String mangakas = postSnapshot.child("Mangaka").getValue(String.class);
+                    String plots = postSnapshot.child("Trama").getValue(String.class);
+                    Log.d(LOG,titoli +" " + url_anime);
                 }
-
-                for (Element mangaka : mangakas) {
-                    arrayList_mangakas.add(mangaka.text());
-                }
-
-                for (Element plot : plots) {
-                    arrayList_plots.add(plot.text());
-                }
-
-                for (Element genere : generes) {
-                    arrayList_generes.add(genere.text());
-                }
-
-                for (Element url_titles : urls) {
-                    String allUrls_final = url_titles.attr("href");
-                    if (allUrls_final.contains("anime.php?id")) {
-                        arrayList_urls.add(allUrls_final);
-                    }
-
-                }
-                JsonObject object = new JsonObject();
-                JsonArray jsonArray = new JsonArray();
-                for (int i = 0; i < arrayList_titles.size(); i++) {
-
-                    JsonObject object1 = new JsonObject();
-                        object1.addProperty("Titolo",arrayList_titles.get(i));
-                        object1.addProperty("Url",arrayList_urls.get(i));
-                        object1.addProperty("Trama",arrayList_plots.get(i));
-                        object1.addProperty("Mangaka",arrayList_mangakas.get(i));
-                        jsonArray.add(object1);
-
-                }
-                object.add("Anime",jsonArray);
-
-                //Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                Gson gson = new Gson();
-                String prettyJson = gson.toJson(object);
-                mData.setValue(prettyJson);
-
-                Log.d(LOG,prettyJson);
-
-                Log.d(LOG, String.valueOf(mapTitles_Urls.size()
-                + " " + arrayList_plots.size() + " " + arrayList_urls.size() + " " + arrayList_mangakas.size()));
-
-
-               /* Log.d(LOG, (
-                        arrayList_titles.get(i)
-                                + arrayList_plots.get(i)
-                                + arrayList_mangakas.get(i)
-                                + arrayList_urls.get(i)));*/
 
             }
-        }, new Response.ErrorListener() {
+
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
 
-        requestQueueFirst.add(request);
-    }
+    }*/
 }

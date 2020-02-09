@@ -25,7 +25,13 @@ import com.anime.cloud.Adapters.OnClickInterface;
 import com.anime.cloud.Adapters.UltimiAggiuntiAdapter;
 import com.anime.cloud.Model.PojoAnime;
 import com.anime.cloud.R;
+import com.anime.cloud.Utils.FireBaseSing;
 import com.anime.cloud.Utils.Utils;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,6 +48,8 @@ public class HomeFragment extends Fragment implements OnClickInterface {
     private InCorsoAdapter mAdapterInCorso;
     private UltimiAggiuntiAdapter mAdapterUltimi;
     private ProgressBar mProgressMain;
+    private FirebaseDatabase mDataBase;
+    private DatabaseReference mRef;
 
     public HomeFragment() {
     }
@@ -49,6 +57,7 @@ public class HomeFragment extends Fragment implements OnClickInterface {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        FireBaseSing.getDatabase();
         mContext = context;
     }
 
@@ -56,7 +65,6 @@ public class HomeFragment extends Fragment implements OnClickInterface {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         setupComponentUI(view);
         httpConnection();
 
@@ -86,53 +94,37 @@ public class HomeFragment extends Fragment implements OnClickInterface {
 
     private void httpConnection() {
 
-        RequestQueue requestQueueFirst = Volley.newRequestQueue(getContext());
+        mDataBase = FirebaseDatabase.getInstance();
+        mRef = mDataBase.getReference();
+        DatabaseReference anime_ref = mRef.child("Anime");
+        anime_ref.keepSynced(true);
         mAnimeInCorso = new ArrayList<>();
-        mAnimeInCorso.clear();
-
         mAnimeUltimi = new ArrayList<>();
-        mAnimeInCorso.clear();
-        StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_ONAIR,
-                new com.android.volley.Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //ScrapData
-                        Document document = Jsoup.parse(response);
-
-                        Elements titles = document.select(".col-md-7.col-sm-7.archive-col>.card-block>.card-title>b");
-                        Elements imgs = document.select(".card-img-top.archive-card-img>a>img");
-                        Elements urls = document.select(".card-img-top.archive-card-img>a");
-
-                        Elements titles_u = document.select("a.text-white.mb-0.mt-0.mb-0.mt-0");
-                        Elements imgs_u = document.select(".card-img-top.archive-card-img>a>img");
-                        Elements urls_u = document.select(".card-img-top.archive-card-img>a");
-
-                        for (int i = 0, t = 0, p = 0; i < titles.size() && t < imgs.size() && p < urls.size(); i++, t++, p++) {
-                            mAnimeInCorso.add(new PojoAnime(
-                                    titles.get(i).text()
-                                    , imgs.get(t).attr("abs:src")
-                                    , urls.get(p).attr("href")));
-                        }
-
-                        for (int i = 0, t = 0, p = 0; i < titles.size() && t < imgs.size() && p < urls.size(); i++, t++, p++) {
-                            mAnimeUltimi.add(new PojoAnime(
-                                    titles.get(i).text()
-                                    , imgs.get(t).attr("abs:src")
-                                    , urls.get(p).attr("href")));
-                        }
-
-                        updateAdapter();
-                        mProgressMain.setVisibility(View.GONE);
-
-                    }
-                }, new com.android.volley.Response.ErrorListener() {
+        anime_ref.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "Risorsa non disponibile", Toast.LENGTH_SHORT).show();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String titoli = postSnapshot.child("Titolo").getValue(String.class);
+                    String url_anime = postSnapshot.child("Url").getValue(String.class);
+                    String imgs = postSnapshot.child("Img_url").getValue(String.class);
+                    String generi = postSnapshot.child("Genere").getValue(String.class);
+                    String mangakas = postSnapshot.child("Mangaka").getValue(String.class);
+                    String plots = postSnapshot.child("Trama").getValue(String.class);
+
+                    mAnimeInCorso.add(new PojoAnime(titoli,imgs,url_anime,generi,plots));
+                    mAnimeUltimi.add(new PojoAnime(titoli,imgs,url_anime,generi,plots));
+                    updateAdapter();
+                    mProgressMain.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
 
-        requestQueueFirst.add(request);
+
     }
 
     private void updateAdapter() {

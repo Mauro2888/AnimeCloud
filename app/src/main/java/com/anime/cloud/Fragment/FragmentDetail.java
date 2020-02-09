@@ -3,6 +3,7 @@ package com.anime.cloud.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class FragmentDetail extends Fragment implements OnClickInterface, View.OnClickListener {
@@ -82,63 +84,53 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
         String title = pojoAnime.getTitleAnime();
         final String url = pojoAnime.getUrlAnimePage();
         String image = pojoAnime.getUrlImg();
+        String genere = pojoAnime.getGeneri();
+        String trama = pojoAnime.getTrama();
 
         mTitle.setText(title);
+        //setupComponents
+        mGenere.setText(genere);
+        mTrama.setText(trama);
+
         mRecyclerDetailEpisodes = view.findViewById(R.id.recycler_view_detail);
         mRecyclerDetailEpisodes.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerDetailEpisodes.setHasFixedSize(true);
-        setupAdapter();
 
         mImageDetail = view.findViewById(R.id.anime_image_detail);
         Glide.with(getContext()).asBitmap().fitCenter().load(image).into(mImageDetail);
 
         if (url != null){
-            RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-            StringRequest stringRequest =
-                    new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_DETAIL + url,
-                            new com.android.volley.Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    scrapingSite(response);
-                                }
-                            }, new com.android.volley.Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getContext(), "Risorsa non disponibile", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-            requestQueue.add(stringRequest);
+            getDataFromHomeFragment(url);
         }
 
         return view;
     }
 
-    protected void scrapingSite(String response) {
-        Document document = Jsoup.parse(response);
+    protected void getDataFromHomeFragment(String response) {
+        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_DETAIL + response, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Document document = Jsoup.parse(response);
+                Elements titles = document.select("a");
+                for (Element title : titles) {
+                    String all = title.attr("href");
+                    if (all.contains("&ep") && all.contains("anime.php")) {
+                        Log.d("URL",title.text() + " " + all);
+                        mEpisodesArrayList.add(new PojoEpisodes(title.text(),all));
+                    }
+                    setupAdapter();
+                }
 
-        Elements infoAnime = document.select(".card-body.bg-light-gray");
-
-        Element trama = infoAnime.select("p:contains(TRAMA)").first();
-        Element stato = infoAnime.select("p:contains(STATO)").first();
-        Element genere = infoAnime.select("p:contains(GENERI)").first();
-
-        Elements titles = document.select("a");
-        for (Element title : titles) {
-            String all = title.attr("href");
-            if (all.contains("&ep") && all.contains("anime.php")) {
-                mEpisodesArrayList.add(new PojoEpisodes(title.text(),all));
             }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
 
-        }
+            }
+        });
 
-        setupAdapter();
-
-        //setupComponents
-        mGenere.setText(genere.text());
-        mStato.setText(stato.text());
-        mTrama.setText(trama.text());
-
+        requestQueue.add(request);
     }
 
     private void setupAdapter() {

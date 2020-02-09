@@ -12,6 +12,7 @@ import com.anime.cloud.Fragment.HomeFragment;
 
 import com.anime.cloud.Fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {

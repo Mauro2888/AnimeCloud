@@ -24,6 +24,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.2'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'gr.pantrif:easy-android-splash-screen:0.0.1'
     implementation 'org.apache.commons:commons-lang3:3.6'
