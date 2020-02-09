@@ -1,5 +1,5 @@
 # AnimeCloud
-View italian anime episodes
+Application to watch anime videos
 
 # 1.0 version
 first implementation
