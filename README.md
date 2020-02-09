@@ -3,7 +3,8 @@ View italian anime episodes
 
 # 1.0 version
 first implementation
-- basic design and basic scrap implementation 
+- basic design
+
 n.b all data has been scraped from https://animeunity.it/ website
 
 <p align="center">
