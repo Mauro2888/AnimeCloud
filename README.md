@@ -14,6 +14,7 @@ n.b all data has been scraped from https://animeunity.it/ website
 
 # 1.1 version
 - The design has been changed
+- Fixed images and card view obj
 - Firebase Database has been implemented
 - Half data has been implemented as a json format for avoid multiple http request
 
