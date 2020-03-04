@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="8dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+  <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:gravity="center_vertical"
+      android:layout_centerInParent="true"
+      android:layout_height="wrap_content">
+
+      <ImageView
+          android:layout_width="90dp"
+          android:src="@drawable/btn_play"
+          android:text="@string/episodio"
+          android:layout_height="30dp" />
+
+      <TextView
+          android:textSize="15sp"
+          android:gravity="center"
+          android:layout_marginStart="8dp"
+          android:linksClickable="true"
+          android:text="@string/episodio"
+          style="@style/TextViewColor"
+          android:layout_gravity="center_horizontal"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"/>
+
+      <TextView
+          style="@style/TextViewColor"
+          android:textSize="15sp"
+          android:gravity="center"
+          android:layout_marginStart="8dp"
+          android:linksClickable="true"
+          android:text="@string/episodio"
+          android:layout_gravity="center_horizontal"
+          android:id="@+id/episode_number"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"/>
+
+  </LinearLayout>
+
+</RelativeLayout>

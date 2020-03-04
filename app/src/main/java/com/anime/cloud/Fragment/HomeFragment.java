@@ -1,8 +1,9 @@
 package com.anime.cloud.Fragment;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,41 +13,31 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.anime.cloud.Adapters.InCorsoAdapter;
 import com.anime.cloud.Adapters.OnClickInterface;
-import com.anime.cloud.Adapters.UltimiAggiuntiAdapter;
+import com.anime.cloud.Adapters.AllAnimeAdapter;
+import com.anime.cloud.Adapters.OnClickInterfaceAll;
 import com.anime.cloud.Model.PojoAnime;
 import com.anime.cloud.R;
 import com.anime.cloud.Utils.FireBaseSing;
-import com.anime.cloud.Utils.Utils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
 
-public class HomeFragment extends Fragment implements OnClickInterface {
+public class HomeFragment extends Fragment implements OnClickInterface, OnClickInterfaceAll {
     private RecyclerView mRecyclerViewInCorso;
     private RecyclerView mRecyclerViewUltimi;
     private Context mContext;
     private ArrayList<PojoAnime> mAnimeInCorso;
-    private ArrayList<PojoAnime> mAnimeUltimi;
+    private ArrayList<PojoAnime> mAnimeAll;
     private InCorsoAdapter mAdapterInCorso;
-    private UltimiAggiuntiAdapter mAdapterUltimi;
+    private AllAnimeAdapter mAdapterUltimi;
     private ProgressBar mProgressMain;
     private FirebaseDatabase mDataBase;
     private DatabaseReference mRef;
@@ -99,7 +90,7 @@ public class HomeFragment extends Fragment implements OnClickInterface {
         DatabaseReference anime_ref = mRef.child("Anime");
         anime_ref.keepSynced(true);
         mAnimeInCorso = new ArrayList<>();
-        mAnimeUltimi = new ArrayList<>();
+        mAnimeAll = new ArrayList<>();
         anime_ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -111,8 +102,32 @@ public class HomeFragment extends Fragment implements OnClickInterface {
                     String mangakas = postSnapshot.child("Mangaka").getValue(String.class);
                     String plots = postSnapshot.child("Trama").getValue(String.class);
 
-                    mAnimeInCorso.add(new PojoAnime(titoli,imgs,url_anime,generi,plots));
-                    mAnimeUltimi.add(new PojoAnime(titoli,imgs,url_anime,generi,plots));
+                    mAnimeAll.add(new PojoAnime(titoli, imgs, url_anime, generi, plots));
+                    updateAdapter();
+                    mProgressMain.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(mContext, "Errore", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        DatabaseReference anime_corso = mRef.child("Anime_in_Corso");
+        anime_corso.keepSynced(true);
+        anime_corso.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String titoli = postSnapshot.child("Titolo").getValue(String.class);
+                    String url_anime = postSnapshot.child("Url").getValue(String.class);
+                    String imgs = postSnapshot.child("Img_url").getValue(String.class);
+                    String generi = postSnapshot.child("Genere").getValue(String.class);
+                    String mangakas = postSnapshot.child("Mangaka").getValue(String.class);
+                    String plots = postSnapshot.child("Trama").getValue(String.class);
+
+                    mAnimeInCorso.add(new PojoAnime(titoli, imgs, url_anime, generi, plots));
                     updateAdapter();
                     mProgressMain.setVisibility(View.GONE);
                 }
@@ -131,17 +146,17 @@ public class HomeFragment extends Fragment implements OnClickInterface {
         mAdapterInCorso = new InCorsoAdapter(getContext(), mAnimeInCorso);
         mRecyclerViewInCorso.setAdapter(mAdapterInCorso);
 
-        mAdapterUltimi = new UltimiAggiuntiAdapter(getContext(), mAnimeUltimi);
+        mAdapterUltimi = new AllAnimeAdapter(getContext(), mAnimeAll);
         mRecyclerViewUltimi.setAdapter(mAdapterUltimi);
 
         mAdapterInCorso.notifyDataSetChanged();
         mAdapterUltimi.notifyDataSetChanged();
         mAdapterInCorso.setOnClickInterface(this);
-        mAdapterUltimi.setOnClickInterface(this);
+        mAdapterUltimi.setOnClickInterfaceAll(this);
     }
 
 
-    protected void hideSystemUI() {
+    private void hideSystemUI() {
 
         getActivity().getWindow().getDecorView()
                 .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -170,7 +185,7 @@ public class HomeFragment extends Fragment implements OnClickInterface {
         FragmentDetail fragmentDetail = new FragmentDetail();
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("DetailAnime", mAnimeInCorso.get(pos));
+        bundle.putSerializable("DetailAnime_inCorso", mAnimeInCorso.get(pos));
         fragmentDetail.setArguments(bundle);
 
         getFragmentManager()
@@ -180,4 +195,18 @@ public class HomeFragment extends Fragment implements OnClickInterface {
                 .commit();
     }
 
+    @Override
+    public void onClickItemAll(View view, int pos) {
+        FragmentDetail fragmentDetail = new FragmentDetail();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("DetailAnime_all", mAnimeAll.get(pos));
+        fragmentDetail.setArguments(bundle);
+
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragmentDetail)
+                .addToBackStack(null)
+                .commit();
+    }
 }

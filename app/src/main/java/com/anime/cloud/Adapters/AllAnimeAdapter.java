@@ -18,17 +18,17 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class UltimiAggiuntiAdapter extends RecyclerView.Adapter<UltimiAggiuntiAdapter.ViewHolderMain> {
+public class AllAnimeAdapter extends RecyclerView.Adapter<AllAnimeAdapter.ViewHolderMain> {
 
     private Context context;
     private List<PojoAnime> animeList;
-    private OnClickInterface onClickInterface;
+    private OnClickInterfaceAll onClickInterfaceAll;
 
-    public void setOnClickInterface(OnClickInterface onClickInterface) {
-        this.onClickInterface = onClickInterface;
+    public void setOnClickInterfaceAll(OnClickInterfaceAll onClickInterfaceAll) {
+        this.onClickInterfaceAll = onClickInterfaceAll;
     }
 
-    public UltimiAggiuntiAdapter(Context context, List<PojoAnime> animeList) {
+    public AllAnimeAdapter(Context context, List<PojoAnime> animeList) {
         this.context = context;
         this.animeList = animeList;
     }
@@ -79,7 +79,7 @@ public class UltimiAggiuntiAdapter extends RecyclerView.Adapter<UltimiAggiuntiAd
         @Override
         public void onClick(View v) {
             if (v != null){
-                onClickInterface.onClickItem(v,getAdapterPosition());
+                onClickInterfaceAll.onClickItemAll(v,getAdapterPosition());
             }
         }
     }

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,11 +37,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class FragmentDetail extends Fragment implements OnClickInterface, View.OnClickListener {
 
+    private static final String LOG = FragmentDetail.class.getSimpleName();
     private Context mContext;
     private PojoAnime pojoAnime;
     private ImageView mImageDetail;
@@ -69,44 +68,53 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
         hideSystemUI();
 
         Bundle intentMain = getArguments();
-        pojoAnime = (PojoAnime) intentMain.getSerializable("DetailAnime");
+        if (intentMain != null && intentMain.containsKey("DetailAnime_all")){
+            pojoAnime = (PojoAnime) intentMain.getSerializable("DetailAnime_all");
+        }else {
+            pojoAnime = (PojoAnime) intentMain.getSerializable("DetailAnime_inCorso");
+        }
 
+        setupUIComponents(view);
+        getArgumentsFromFragment(pojoAnime,view);
+
+        mRecyclerDetailEpisodes = view.findViewById(R.id.recycler_view_detail);
+        mRecyclerDetailEpisodes.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerDetailEpisodes.setHasFixedSize(true);
+
+        return view;
+    }
+
+    private void setupUIComponents(View view){
         mProgressDetail = view.findViewById(R.id.progress_bar_detail);
         mProgressDetail.setVisibility(View.VISIBLE);
-
         mTitle = view.findViewById(R.id.title_detail);
         mGenere = view.findViewById(R.id.genere_detail);
         mStato = view.findViewById(R.id.stato_detail);
         mTrama = view.findViewById(R.id.trama_detail);
         mTrama.setOnClickListener(this);
+    }
 
-        //get data from intent
+    private void getArgumentsFromFragment(PojoAnime pojoAnime, View view){
         String title = pojoAnime.getTitleAnime();
         final String url = pojoAnime.getUrlAnimePage();
         String image = pojoAnime.getUrlImg();
         String genere = pojoAnime.getGeneri();
         String trama = pojoAnime.getTrama();
 
+        if (url != null){
+            fetchEpisodesFromUrl(url);
+        }
+
+
         mTitle.setText(title);
-        //setupComponents
         mGenere.setText(genere);
         mTrama.setText(trama);
 
-        mRecyclerDetailEpisodes = view.findViewById(R.id.recycler_view_detail);
-        mRecyclerDetailEpisodes.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerDetailEpisodes.setHasFixedSize(true);
-
         mImageDetail = view.findViewById(R.id.anime_image_detail);
         Glide.with(getContext()).asBitmap().fitCenter().load(image).into(mImageDetail);
-
-        if (url != null){
-            getDataFromHomeFragment(url);
-        }
-
-        return view;
     }
 
-    protected void getDataFromHomeFragment(String response) {
+    protected void fetchEpisodesFromUrl(String response) {
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
         StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_DETAIL + response, new Response.Listener<String>() {
             @Override
@@ -166,18 +174,14 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
         requestQueueUrl.add(requestVideo);
     }
 
-    protected void hideSystemUI() {
+    private void hideSystemUI() {
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            getActivity().getWindow().getDecorView()
-                    .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    );
-        }
+        getActivity().getWindow().getDecorView()
+                .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
     }
 
     @Override

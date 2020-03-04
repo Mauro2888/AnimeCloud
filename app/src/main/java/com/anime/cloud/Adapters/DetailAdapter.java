@@ -32,7 +32,7 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolderMain onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View root = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_detail, parent, false);
+        View root = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view_episodes_detail, parent, false);
         ViewHolderMain holderMain = new ViewHolderMain(root);
         return holderMain;
     }
