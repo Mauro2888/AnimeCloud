@@ -1,7 +1,7 @@
 # AnimeCloud
 Application to watch anime videos
 
-# 1.0 version
+# 1.0.0 version
 first implementation
 - basic design
 
@@ -12,7 +12,7 @@ n.b all data has been scraped from https://animeunity.it/ website
   <img src="https://user-images.githubusercontent.com/15950481/73614691-b1325980-4601-11ea-8de5-cc364a113f43.png" width="250"/> 
 </p>
 
-# 1.1 version
+# 1.1.0 version
 - The design has been changed
 - Fixed images and card view obj
 - Firebase Database has been implemented
