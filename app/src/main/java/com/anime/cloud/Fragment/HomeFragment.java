@@ -1,9 +1,7 @@
 package com.anime.cloud.Fragment;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.anime.cloud.Adapters.InCorsoAdapter;
 import com.anime.cloud.Adapters.OnClickInterface;
-import com.anime.cloud.Adapters.AllAnimeAdapter;
-import com.anime.cloud.Adapters.OnClickInterfaceAll;
-import com.anime.cloud.Model.PojoAnime;
+import com.anime.cloud.Model.Anime;
+import com.anime.cloud.Model.Episodi;
 import com.anime.cloud.R;
 import com.anime.cloud.Utils.FireBaseSing;
 import com.google.firebase.database.DataSnapshot;
@@ -29,18 +26,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HomeFragment extends Fragment implements OnClickInterface, OnClickInterfaceAll {
+public class HomeFragment extends Fragment implements OnClickInterface {
     private RecyclerView mRecyclerViewInCorso;
-    private RecyclerView mRecyclerViewUltimi;
     private Context mContext;
-    private ArrayList<PojoAnime> mAnimeInCorso;
-    private ArrayList<PojoAnime> mAnimeAll;
+    private ArrayList<Anime> mAnimeInCorso;
     private InCorsoAdapter mAdapterInCorso;
-    private AllAnimeAdapter mAdapterUltimi;
     private ProgressBar mProgressMain;
     private FirebaseDatabase mDataBase;
     private DatabaseReference mRef;
+    private List<Episodi>mEpisodi;
 
     public HomeFragment() {
     }
@@ -64,20 +60,13 @@ public class HomeFragment extends Fragment implements OnClickInterface, OnClickI
 
     private void setupComponentUI(final View view) {
 
-        mRecyclerViewInCorso = view.findViewById(R.id.recycler_view_main);
-        mRecyclerViewUltimi = view.findViewById(R.id.recycler_view_ultimi);
+        mRecyclerViewInCorso = view.findViewById(R.id.recycler_view_home);
         mProgressMain = view.findViewById(R.id.progress_bar_main);
 
         mRecyclerViewInCorso.setHasFixedSize(true);
         mRecyclerViewInCorso.setItemViewCacheSize(20);
         mRecyclerViewInCorso.setDrawingCacheEnabled(true);
         mRecyclerViewInCorso.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
-        mRecyclerViewUltimi.setHasFixedSize(true);
-        mRecyclerViewUltimi.setItemViewCacheSize(20);
-        mRecyclerViewUltimi.setDrawingCacheEnabled(true);
-        mRecyclerViewUltimi.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
 
         mProgressMain.setVisibility(View.VISIBLE);
 
@@ -86,26 +75,34 @@ public class HomeFragment extends Fragment implements OnClickInterface, OnClickI
     private void httpConnection() {
 
         mDataBase = FirebaseDatabase.getInstance();
-        mRef = mDataBase.getReference();
-        DatabaseReference anime_ref = mRef.child("Anime");
-        anime_ref.keepSynced(true);
+        mRef = mDataBase.getReference().child("Anime");
+        mRef.keepSynced(true);
         mAnimeInCorso = new ArrayList<>();
-        mAnimeAll = new ArrayList<>();
-        anime_ref.addValueEventListener(new ValueEventListener() {
+        mEpisodi = new ArrayList<>();
+
+        mRef.limitToFirst(20).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    String titoli = postSnapshot.child("Titolo").getValue(String.class);
-                    String url_anime = postSnapshot.child("Url").getValue(String.class);
-                    String imgs = postSnapshot.child("Img_url").getValue(String.class);
-                    String generi = postSnapshot.child("Genere").getValue(String.class);
-                    String mangakas = postSnapshot.child("Mangaka").getValue(String.class);
-                    String plots = postSnapshot.child("Trama").getValue(String.class);
 
-                    mAnimeAll.add(new PojoAnime(titoli, imgs, url_anime, generi, plots));
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    int id = postSnapshot.child("id").getValue(Integer.class);
+                    String titoli = postSnapshot.child("titleAnime").getValue(String.class);
+                    String imgs = postSnapshot.child("urlImage").getValue(String.class);
+                    String mangaka = postSnapshot.child("mangaka").getValue(String.class);
+                    String plots = postSnapshot.child("plotAnime").getValue(String.class);
+                        for (DataSnapshot snapshot : postSnapshot.child("urlVideo").getChildren()){
+                            long ids = snapshot.child("anime_id").getValue(long.class);
+                            String url = snapshot.child("link").getValue(String.class);
+                            String episodeNumber = snapshot.child("number").getValue(String.class);
+                            mEpisodi.add(new Episodi(ids,url,episodeNumber));
+                    }
+
+
+                    mAnimeInCorso.add(new Anime(id,titoli,imgs,mangaka,plots,mEpisodi));
                     updateAdapter();
                     mProgressMain.setVisibility(View.GONE);
                 }
+
             }
 
             @Override
@@ -114,45 +111,14 @@ public class HomeFragment extends Fragment implements OnClickInterface, OnClickI
             }
         });
 
-        DatabaseReference anime_corso = mRef.child("Anime_in_Corso");
-        anime_corso.keepSynced(true);
-        anime_corso.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    String titoli = postSnapshot.child("Titolo").getValue(String.class);
-                    String url_anime = postSnapshot.child("Url").getValue(String.class);
-                    String imgs = postSnapshot.child("Img_url").getValue(String.class);
-                    String generi = postSnapshot.child("Genere").getValue(String.class);
-                    String mangakas = postSnapshot.child("Mangaka").getValue(String.class);
-                    String plots = postSnapshot.child("Trama").getValue(String.class);
-
-                    mAnimeInCorso.add(new PojoAnime(titoli, imgs, url_anime, generi, plots));
-                    updateAdapter();
-                    mProgressMain.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
     }
 
     private void updateAdapter() {
         mAdapterInCorso = new InCorsoAdapter(getContext(), mAnimeInCorso);
         mRecyclerViewInCorso.setAdapter(mAdapterInCorso);
-
-        mAdapterUltimi = new AllAnimeAdapter(getContext(), mAnimeAll);
-        mRecyclerViewUltimi.setAdapter(mAdapterUltimi);
-
         mAdapterInCorso.notifyDataSetChanged();
-        mAdapterUltimi.notifyDataSetChanged();
         mAdapterInCorso.setOnClickInterface(this);
-        mAdapterUltimi.setOnClickInterfaceAll(this);
+
     }
 
 
@@ -186,21 +152,6 @@ public class HomeFragment extends Fragment implements OnClickInterface, OnClickI
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("DetailAnime_inCorso", mAnimeInCorso.get(pos));
-        fragmentDetail.setArguments(bundle);
-
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, fragmentDetail)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    @Override
-    public void onClickItemAll(View view, int pos) {
-        FragmentDetail fragmentDetail = new FragmentDetail();
-
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("DetailAnime_all", mAnimeAll.get(pos));
         fragmentDetail.setArguments(bundle);
 
         getFragmentManager()

@@ -11,6 +11,7 @@
         android:maxLines="1"
         android:paddingStart="50dp"
         android:padding="10dp"
+        android:textColor="@color/textColor"
         android:background="@drawable/search_bar_text"
         android:id="@+id/search_anime"
         android:layout_width="match_parent"
