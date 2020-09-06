@@ -7,7 +7,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.anime.cloud.Model.PojoAnime;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.anime.cloud.Model.Anime;
 import com.anime.cloud.R;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -15,21 +18,18 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 public class InCorsoAdapter extends RecyclerView.Adapter<InCorsoAdapter.ViewHolderMain> {
 
     private Context context;
-    private List<PojoAnime> animeList;
+    private List<Anime> animeList;
     private OnClickInterface onClickInterface;
-    private int mLimit = 15;
+    private int mLimit = 20;
 
     public void setOnClickInterface(OnClickInterface onClickInterface) {
         this.onClickInterface = onClickInterface;
     }
 
-    public InCorsoAdapter(Context context, List<PojoAnime> animeList) {
+    public InCorsoAdapter(Context context, List<Anime> animeList) {
         this.context = context;
         this.animeList = animeList;
     }
@@ -45,8 +45,8 @@ public class InCorsoAdapter extends RecyclerView.Adapter<InCorsoAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolderMain holder, int position) {
 
-        PojoAnime pojoAnime = animeList.get(position);
-        holder.title.setText(pojoAnime.getTitleAnime());
+        Anime animePojo = animeList.get(position);
+        holder.title.setText(animePojo.getTitleAnime());
 
         RequestOptions glideOp = new RequestOptions()
                 .fitCenter();
@@ -54,7 +54,7 @@ public class InCorsoAdapter extends RecyclerView.Adapter<InCorsoAdapter.ViewHold
         Glide.with(context)
                 .asBitmap()
                 .apply(glideOp)
-                .load(pojoAnime.getUrlImg())
+                .load(animePojo.getUrlImage())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imageView);
 

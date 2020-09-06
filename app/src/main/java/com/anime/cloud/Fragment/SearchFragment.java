@@ -8,16 +8,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.anime.cloud.Model.PojoAnime;
 import com.anime.cloud.R;
 import com.anime.cloud.Utils.FireBaseSing;
 import com.google.firebase.database.DataSnapshot;
@@ -26,7 +22,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SearchFragment extends Fragment {
@@ -61,7 +56,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    String titoli = postSnapshot.child("Titolo").getValue(String.class);
+                    String titoli = postSnapshot.child("titleAnime").getValue(String.class);
                     String url_anime = postSnapshot.child("Url").getValue(String.class);
                     String imgs = postSnapshot.child("Img_url").getValue(String.class);
                     String generi = postSnapshot.child("Genere").getValue(String.class);

@@ -6,25 +6,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.anime.cloud.Model.PojoEpisodes;
-import com.anime.cloud.R;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.anime.cloud.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolderMain> {
 
     private Context context;
-    private List<PojoEpisodes> episodesList;
+    private List<String> episodesList;
     private OnClickInterface onClickInterface;
 
     public void setOnClickInterface(OnClickInterface onClickInterface) {
         this.onClickInterface = onClickInterface;
     }
 
-    public DetailAdapter(Context context, List<PojoEpisodes> episodesList) {
+    public DetailAdapter(Context context, ArrayList<String> episodesList) {
         this.context = context;
         this.episodesList = episodesList;
     }
@@ -40,8 +40,8 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolderMain holder, int position) {
 
-        PojoEpisodes pojoEpisodes = episodesList.get(position);
-        holder.episodeNumber.setText(pojoEpisodes.getEpisode());
+        String pojoEpisodes = episodesList.get(position);
+        holder.episodeNumber.setText(pojoEpisodes);
 
     }
 

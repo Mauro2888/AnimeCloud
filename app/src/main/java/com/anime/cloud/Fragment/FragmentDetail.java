@@ -3,7 +3,6 @@ package com.anime.cloud.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,41 +16,30 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.anime.cloud.Adapters.DetailAdapter;
 import com.anime.cloud.Adapters.OnClickInterface;
-import com.anime.cloud.Model.PojoEpisodes;
+import com.anime.cloud.Model.Anime;
+import com.anime.cloud.Model.Episodi;
 import com.anime.cloud.PlayActivity;
-import com.anime.cloud.Model.PojoAnime;
 import com.anime.cloud.R;
-import com.anime.cloud.Utils.Utils;
 import com.bumptech.glide.Glide;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
+import java.util.List;
 
 public class FragmentDetail extends Fragment implements OnClickInterface, View.OnClickListener {
 
     private static final String LOG = FragmentDetail.class.getSimpleName();
     private Context mContext;
-    private PojoAnime pojoAnime;
+    private Anime animePojo;
     private ImageView mImageDetail;
     private TextView mTitle,mGenere,mTrama,mStato;
     private DetailAdapter mDetailAdapter;
     private ProgressBar mProgressDetail;
     private RecyclerView mRecyclerDetailEpisodes;
-    private ArrayList<PojoEpisodes> mEpisodesArrayList = new ArrayList<>();
+    private ArrayList<String> mEpisodesArrayList = new ArrayList<>();
     private boolean isClickedTextView = false;
-
+    int id;
     public FragmentDetail(){}
 
     @Override
@@ -68,18 +56,15 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
         hideSystemUI();
 
         Bundle intentMain = getArguments();
-        if (intentMain != null && intentMain.containsKey("DetailAnime_all")){
-            pojoAnime = (PojoAnime) intentMain.getSerializable("DetailAnime_all");
-        }else {
-            pojoAnime = (PojoAnime) intentMain.getSerializable("DetailAnime_inCorso");
-        }
+        animePojo = (Anime) intentMain.getSerializable("DetailAnime_inCorso");
+
 
         setupUIComponents(view);
-        getArgumentsFromFragment(pojoAnime,view);
-
+        getArgumentsFromFragment(animePojo,view);
         mRecyclerDetailEpisodes = view.findViewById(R.id.recycler_view_detail);
         mRecyclerDetailEpisodes.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerDetailEpisodes.setHasFixedSize(true);
+        setupAdapter();
 
         return view;
     }
@@ -94,17 +79,19 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
         mTrama.setOnClickListener(this);
     }
 
-    private void getArgumentsFromFragment(PojoAnime pojoAnime, View view){
-        String title = pojoAnime.getTitleAnime();
-        final String url = pojoAnime.getUrlAnimePage();
-        String image = pojoAnime.getUrlImg();
-        String genere = pojoAnime.getGeneri();
-        String trama = pojoAnime.getTrama();
+    private void getArgumentsFromFragment(final Anime animePojo, View view){
+        id = animePojo.getId();
+        String title = animePojo.getTitleAnime();
+        String image = animePojo.getUrlImage();
+        String genere = animePojo.getMangaka();
+        String trama = animePojo.getPlotAnime();
+        List<Episodi> episodi = animePojo.getUrlVideo();
+        for (Episodi i : episodi){
+            if (id == i.getIdAnime()){
+                mEpisodesArrayList.add(i.getLink());
+            }
 
-        if (url != null){
-            fetchEpisodesFromUrl(url);
         }
-
 
         mTitle.setText(title);
         mGenere.setText(genere);
@@ -112,33 +99,6 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
 
         mImageDetail = view.findViewById(R.id.anime_image_detail);
         Glide.with(getContext()).asBitmap().fitCenter().load(image).into(mImageDetail);
-    }
-
-    protected void fetchEpisodesFromUrl(String response) {
-        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-        StringRequest request = new StringRequest(Request.Method.GET, Utils.BASE_ENDPOINT_DETAIL + response, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Document document = Jsoup.parse(response);
-                Elements titles = document.select("a");
-                for (Element title : titles) {
-                    String all = title.attr("href");
-                    if (all.contains("&ep") && all.contains("anime.php")) {
-                        Log.d("URL",title.text() + " " + all);
-                        mEpisodesArrayList.add(new PojoEpisodes(title.text(),all));
-                    }
-                    setupAdapter();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        requestQueue.add(request);
     }
 
     private void setupAdapter() {
@@ -151,27 +111,9 @@ public class FragmentDetail extends Fragment implements OnClickInterface, View.O
 
     @Override
     public void onClickItem(View view, int pos) {
-        RequestQueue requestQueueUrl = Volley.newRequestQueue(getContext());
-        StringRequest requestVideo = new StringRequest(Request.Method.GET,
-                Utils.BASE_ENDPOINT_DETAIL + mEpisodesArrayList.get(pos).getUrl(),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Document document = Jsoup.parse(response);
-                        Elements basic = document.select("source");
-                        for (Element i: basic) {
-                            Intent sendUrl = new Intent(getContext(), PlayActivity.class);
-                            sendUrl.putExtra("url",i.attr("src"));
-                            startActivity(sendUrl);
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        requestQueueUrl.add(requestVideo);
+        Intent sendUrl = new Intent(getContext(), PlayActivity.class);
+        sendUrl.putExtra("url",mEpisodesArrayList.get(pos));
+        startActivity(sendUrl);
     }
 
     private void hideSystemUI() {
